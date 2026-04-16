@@ -25,12 +25,18 @@ SECRET_KEY = 'django-insecure-q^6395i9fv25j81+q2b4&1o7l_@7^u3i1imhu#elgn92gj)579
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['tqw740.pythonanywhere.com']
+ALLOWED_HOSTS = ['tqw740.pythonanywhere.com',
+                 'localhost',
+                 '127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    # 我的应用程序
+    'learning_logs',
+
+    # Django 默认添加的应用程序
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
