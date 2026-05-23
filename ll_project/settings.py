@@ -13,9 +13,30 @@ import os
 
 import dj_database_url
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def load_local_env_file() -> None:
+    env_path = BASE_DIR / '.env'
+    if not env_path.exists():
+        return
+
+    with env_path.open('r', encoding='utf-8') as env_file:
+        for line in env_file:
+            stripped_line = line.strip()
+            if not stripped_line or stripped_line.startswith('#') or '=' not in stripped_line:
+                continue
+
+            key, value = stripped_line.split('=', 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            os.environ.setdefault(key, value)
+
+
+load_local_env_file()
 
 
 # Quick-start development settings - unsuitable for production
@@ -97,12 +118,9 @@ if database_url:
         )
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+    raise ImproperlyConfigured(
+        'DATABASE_URL or POSTGRES_URL is required. Configure PostgreSQL for both local and Vercel environments.'
+    )
 
 
 # Password validation
