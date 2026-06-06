@@ -52,6 +52,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '.vercel.app',
+    '.tqw740.top',
 ]
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
 if allowed_hosts_env:
@@ -159,6 +160,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+WHITENOISE_USE_FINDERS = True
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 csrf_trusted_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
