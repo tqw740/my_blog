@@ -1,27 +1,39 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.http import Http404
 
 from .models import Topic, Entry
 from .forms import TopicForm, EntryForm
 
 # Create your views here.
 
+def check_topic_owner(topic, request):
+    """确认主题属于当前用户"""
+    if topic.owner != request.user:
+        raise Http404
+
 def index(request):
     """学习笔记的主页"""
     return render(request, 'learning_logs/index.html')
 
+@login_required
 def topics(request):
     """显示所有的主题"""
     topics = Topic.objects.order_by('date_added')
     context = {'topics': topics}
     return render(request, 'learning_logs/topics.html', context)
 
+@login_required
 def topic(request, topic_id):
     """显示单个主题及其所有的条目"""
     topic = Topic.objects.get(id=topic_id)
+    #check_topic_owner(topic, request)
+    
     entries = topic.entry_set.order_by('-date_added')
     context = {'topic': topic, 'entries': entries}
     return render(request, 'learning_logs/topic.html', context)
 
+@login_required
 def new_topic(request):
     """添加新主题"""
     if request.method != 'POST':
@@ -31,16 +43,20 @@ def new_topic(request):
         # POST 提交的数据: 对数据进行处理
         form = TopicForm(data=request.POST)
         if form.is_valid():
-            form.save()
+            new_topic = form.save(commit=False)
+            new_topic.owner = request.user
+            new_topic.save()
             return redirect('learning_logs:topics')
     
     # 显示空表单或指出表单数据无效
     context = {'form': form}
     return render(request, 'learning_logs/new_topic.html', context)
 
+@login_required
 def new_entry(request, topic_id):
     """在特定主题中添加新条目"""
     topic = Topic.objects.get(id=topic_id)
+    check_topic_owner(topic, request)
 
     if request.method != 'POST':
         # 未提交数据：创建一个空表单
@@ -58,10 +74,12 @@ def new_entry(request, topic_id):
     context = {'topic': topic, 'form': form}
     return render(request, 'learning_logs/new_entry.html', context)
 
+@login_required
 def edit_entry(request, entry_id):
     """编辑既有的条目"""
     entry = Entry.objects.get(id=entry_id)
     topic = entry.topic
+    check_topic_owner(topic, request)
 
     if request.method != 'POST':
         # 初次请求：使用当前的条目填充表单
