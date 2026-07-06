@@ -64,6 +64,7 @@ if allowed_hosts_env:
 INSTALLED_APPS = [
     # 我的应用程序
     'learning_logs',
+    'accounts',
 
     # Django 默认添加的应用程序
     'django.contrib.admin',
@@ -175,3 +176,7 @@ if csrf_trusted_origins_env:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 我的设置
+LOGIN_REDIRECT_URL = 'learning_logs:index'
+LOGOUT_REDIRECT_URL = 'learning_logs:index'
