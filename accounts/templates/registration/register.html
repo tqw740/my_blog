@@ -1,12 +1,41 @@
 {% extends "learning_logs/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block page_header %}
+    <h1 class="h2 text-center mb-4">Create a new account</h1>
+{% endblock page_header %}
 
 {% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
 
-    <form action="{% url 'accounts:register' %}" method='post'>
-        {% csrf_token %}
-        {{ form.as_div }}
+                    <form action="{% url 'accounts:register' %}" method="post">
+                        {% csrf_token %}
+                        
+                        <!-- 自动渲染注册表单（用户名、密码、确认密码） -->
+                        {% bootstrap_form form %}
 
-        <button name="submit">Register</button>
-    </form>
+                        <div class="d-grid gap-2 mt-4">
+                            <button name="submit" class="btn btn-primary btn-lg">
+                                Register
+                            </button>
+                        </div>
+                    </form>
 
+                    <hr class="my-4">
+
+                    <!-- 底部引导跳转到登录 -->
+                    <div class="text-center">
+                        <span class="text-muted">Already have an account?</span>
+                        <a href="{% url 'accounts:login' %}" class="text-decoration-none ms-1 fw-bold">
+                            Log in
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}

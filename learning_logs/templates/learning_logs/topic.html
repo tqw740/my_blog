@@ -6,19 +6,21 @@
 
 {% block content %}
     <p>
-        <a href="{% url 'learning_logs:new_entry' topic.id %}">
+        <!-- 主操作按钮：使用 primary 样式 -->
+        <a href="{% url 'learning_logs:new_entry' topic.id %}" class="btn btn-primary">
             Add new entry
         </a>
     </p>
 
     {% for entry in entries %}
         <div class="card mb-3">
-            <!-- 包含时间戳和编辑链接的标题 -->
-            <h4 class="card-header">
-                {{ entry.date_added|date:'M d, Y H:i' }}
-                <small><a href="{% url 'learning_logs:edit_entry' entry.id %}">
-                    edit entry</a></small>
-            </h4>
+            <!-- 卡片头部：配合 Flex 布局把时间靠左、编辑按钮靠右对齐 -->
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ entry.date_added|date:'M d, Y H:i' }}</h5>
+                <a href="{% url 'learning_logs:edit_entry' entry.id %}" class="btn btn-outline-secondary btn-sm">
+                    Edit entry
+                </a>
+            </div>
             <!-- 包含条目文本的正文 -->
             <div class="card-body">{{ entry.text|linebreaks }}</div> 
         </div>

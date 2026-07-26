@@ -1,12 +1,36 @@
 {% extends "learning_logs/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block page_header %}
+    <h1 class="h2">Add a New Topic</h1>
+{% endblock page_header %}
 
 {% block content %}
-    <p>Add a new topic:</p>
+    <!-- 用卡片包装表单，并限制最大宽度，防止在大屏上拉得太宽 -->
+    <div class="row">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    
+                    <form action="{% url 'learning_logs:new_topic' %}" method="post">
+                        {% csrf_token %}
+                        
+                        <!-- 1. 使用 django_bootstrap5 自动美化所有表单控件 -->
+                        {% bootstrap_form form %}
 
-    <form action="{% url 'learning_logs:new_topic' %}" method='post'>
-        {% csrf_token %}
-        {{ form.as_div }}
-        <button name="submit">Add topic</button>
-    </form>
+                        <!-- 2. 底部按钮区：添加提交与取消按钮 -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <button name="submit" class="btn btn-primary">
+                                Add topic
+                            </button>
+                            <a href="{% url 'learning_logs:topics' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
 
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}

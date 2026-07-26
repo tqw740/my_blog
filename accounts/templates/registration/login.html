@@ -1,16 +1,46 @@
-{% extends 'learning_logs/base.html' %}
+{% extends "learning_logs/base.html" %}
 {% load django_bootstrap5 %}
 
 {% block page_header %}
-    <h2>Log in to your account.</h2>
+    <h1 class="h2 text-center mb-4">Log in to your account</h1>
 {% endblock page_header %}
 
 {% block content %}
+    <!-- 使用 row justify-content-center 让卡片在页面水平居中 -->
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
 
-    <form action="{% url 'accounts:login' %}" method='post'>
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        {% bootstrap_button button_type="submit" content="Log in" %}
-    </form>
+                    <form action="{% url 'accounts:login' %}" method="post">
+                        {% csrf_token %}
+                        
+                        <!-- 自动渲染美化后的用户名和密码输入框 -->
+                        {% bootstrap_form form %}
 
+                        <!-- 全宽度的提交按钮 (d-grid) -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button name="submit" class="btn btn-primary btn-lg">
+                                Log in
+                            </button>
+                        </div>
+
+                        <!-- 登录成功后跳转回首页（或者之前尝试访问的页面） -->
+                        <input type="hidden" name="next" value="{% url 'learning_logs:index' %}" />
+                    </form>
+
+                    <hr class="my-4">
+
+                    <!-- 底部引导链接 -->
+                    <div class="text-center">
+                        <span class="text-muted">Don't have an account?</span>
+                        <a href="{% url 'accounts:register' %}" class="text-decoration-none ms-1 fw-bold">
+                            Register here
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}

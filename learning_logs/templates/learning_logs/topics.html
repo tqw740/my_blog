@@ -1,25 +1,40 @@
 {% extends 'learning_logs/base.html' %}
 
 {% block page_header %}
-    <h1>Topics</h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Topics</h1>
+        <!-- 1. 顶部主操作按钮 -->
+        <a href="{% url 'learning_logs:new_topic' %}" class="btn btn-primary">
+            + Add a new topic
+        </a>
+    </div>
 {% endblock page_header %}
 
 {% block content %}
-    
-    <ul class="list-group border-bottom pb-2 mb-4">
+    <div class="list-group mb-4">
         {% for topic in topics %}
-            <li class="list-group-item border-0">
-                <a href="{% url 'learning_logs:topic' topic.id %}">
+            <!-- 2. 将整个 li 换成交互式 a 标签，整条都能点击，自带 Hover 高亮 -->
+            <a href="{% url 'learning_logs:topic' topic.id %}" 
+               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 mb-2 rounded border shadow-sm">
+                
+                <!-- 左侧：主题名称 -->
+                <span class="fw-semibold text-body fs-5">
                     {{ topic.text }}
-                </a>
-            </li>
-        {% empty %}
-            <li class="list-group-item border-0">
-                No topics have been added yet.
-            </li>
-        {% endfor %}
-    </ul>
+                </span>
 
-    <a href="{% url 'learning_logs:new_topic' %}">Add a new topic</a>
-    
+                <!-- 右侧：进入详情的提示小按钮 -->
+                <span class="btn btn-sm btn-outline-primary">
+                    View Entries &rarr;
+                </span>
+            </a>
+        {% empty %}
+            <!-- 3. 空白状态美化 -->
+            <div class="alert alert-light border text-center py-4 text-muted" role="alert">
+                <p class="mb-2">No topics have been added yet.</p>
+                <a href="{% url 'learning_logs:new_topic' %}" class="btn btn-outline-primary btn-sm">
+                    Create your first topic
+                </a>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock content %}

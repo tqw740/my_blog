@@ -1,14 +1,50 @@
 {% extends "learning_logs/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block page_header %}
+    <!-- 面包屑导航：清晰展示层级关系 Topics -> 具体主题 -> 添加条目 -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2">
+            <li class="breadcrumb-item">
+                <a href="{% url 'learning_logs:topics' %}">Topics</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Add Entry</li>
+        </ol>
+    </nav>
+
+    <h1 class="h2">Add a New Entry</h1>
+{% endblock page_header %}
 
 {% block content %}
+    <div class="row">
+        <!-- 考虑条目内容通常文字较多，将宽度设置为 col-md-10 col-lg-8 -->
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    
+                    <form action="{% url 'learning_logs:new_entry' topic.id %}" method="post">
+                        {% csrf_token %}
+                        
+                        <!-- 自动渲染 Bootstrap 风格的表单（如带圆角和高亮的 Textarea） -->
+                        {% bootstrap_form form %}
 
-    <p><a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a></p>
+                        <!-- 底部按钮区 -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <button name="submit" class="btn btn-primary">
+                                Add entry
+                            </button>
+                            <!-- 点击取消，直接返回当前 Topic 的详情页 -->
+                            <a href="{% url 'learning_logs:topic' topic.id %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
 
-    <p>Add a new entry:</p>
-    <form action="{% url 'learning_logs:new_entry' topic.id %}" method='post'>
-        {% csrf_token %}
-        {{ form.as_div }}
-        <button name='submit'>Add entry</button>
-    </form>
-
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
