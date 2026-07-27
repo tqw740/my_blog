@@ -1,6 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 
 from .models import Topic, Entry
 from .forms import TopicForm, EntryForm
@@ -10,7 +11,7 @@ from .forms import TopicForm, EntryForm
 def check_topic_owner(topic, request):
     """确认主题属于当前用户"""
     if topic.owner != request.user:
-        raise Http404
+        raise PermissionDenied("这不是你的主题，你没有权限进行此操作。")
 
 def index(request):
     """学习笔记的主页"""
@@ -52,9 +53,40 @@ def new_topic(request):
     return render(request, 'learning_logs/new_topic.html', context)
 
 @login_required
+def edit_topic(request, topic_id):
+    """编辑既有的主题名称"""
+    topic = get_object_or_404(Topic, id=topic_id)
+    check_topic_owner(topic, request)
+
+    if request.method != 'POST':
+        form = TopicForm(instance=topic)
+    else:
+        form = TopicForm(instance=topic, data=request.POST)
+        if form.is_valid():
+            form.save()
+            redirect('learning_logs:topics')
+
+    # 显示空表单或指出表单数据无效
+    context = {'topic': topic, 'form': form}
+    return render(request, 'learning_logs/edit_topic.html', context)
+
+
+@login_required
+def delete_topic(request, topic_id):
+    """删除既有的主题"""
+    topic = get_object_or_404(Topic, id=topic_id)
+    check_topic_owner(topic, request)
+
+    if request.method == 'POST':
+        topic.delete()
+
+    # 删除后重定向
+    return redirect('learning_logs:topics')
+
+@login_required
 def new_entry(request, topic_id):
     """在特定主题中添加新条目"""
-    topic = Topic.objects.get(id=topic_id)
+    topic = get_object_or_404(Topic, id=topic_id)
     check_topic_owner(topic, request)
 
     if request.method != 'POST':
@@ -76,7 +108,7 @@ def new_entry(request, topic_id):
 @login_required
 def edit_entry(request, entry_id):
     """编辑既有的条目"""
-    entry = Entry.objects.get(id=entry_id)
+    entry = get_object_or_404(Entry, id=entry_id)
     topic = entry.topic
     check_topic_owner(topic, request)
 
@@ -92,3 +124,16 @@ def edit_entry(request, entry_id):
         
     context = {'entry': entry, 'topic': topic, 'form': form}
     return render(request, 'learning_logs/edit_entry.html', context)
+
+@login_required
+def delete_entry(request, entry_id):
+    """删除既有的条目"""
+    entry = get_object_or_404(Entry, id=entry_id)
+    topic = entry.topic
+    check_topic_owner(topic, request)
+
+    if request.method == 'POST':
+        entry.delete()
+
+    # 删除后重定向
+    return redirect('learning_logs:topic', topic_id=topic.id)
