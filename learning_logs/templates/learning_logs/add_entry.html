@@ -1,9 +1,9 @@
 {% extends "learning_logs/base.html" %}
 
-{% block title %}编辑笔记 · 学习笔记{% endblock title %}
+{% block title %}新增笔记 · 学习笔记{% endblock title %}
 
 {% block page_header %}
-<h1 class="h2 mb-4">编辑笔记（{{ entry.topic.text }}）</h1>
+<h1 class="h2 mb-4">在「{{ topic.text }}」下新增笔记</h1>
 {% endblock page_header %}
 
 {% block content %}
@@ -11,16 +11,18 @@
     <div class="col-lg-8">
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
-                <form method="post" action="{% url 'learning_logs:edit_entry' entry.id %}">
+                <form method="post"
+                      action="{% url 'learning_logs:add_entry' topic.owner.username topic.get_full_path %}">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="id_text" class="form-label">笔记内容</label>
                         <textarea class="form-control" id="id_text" name="text"
-                                  rows="10" required>{{ entry.text }}</textarea>
+                                  rows="10" required
+                                  placeholder="记录你的心得、总结、代码片段……"></textarea>
                     </div>
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary px-4">保存修改</button>
-                        <a href="{% url 'learning_logs:topic_detail' entry.topic.owner.username entry.topic.get_full_path %}"
+                        <button type="submit" class="btn btn-primary px-4">保存笔记</button>
+                        <a href="{% url 'learning_logs:topic_detail' topic.owner.username topic.get_full_path %}"
                            class="btn btn-outline-secondary px-4">取消</a>
                     </div>
                 </form>

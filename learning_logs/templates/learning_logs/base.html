@@ -1,82 +1,130 @@
-<!doctype html>
-<html lang="en">
+{% load django_bootstrap5 %}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Learning Log</title>
-
-    {% load django_bootstrap5 %}
+    <title>{% block title %}学习笔记{% endblock title %}</title>
     {% bootstrap_css %}
-    {% bootstrap_javascript %}
+    <style>
+        /* 全局微调 */
+        body {
+            background-color: #f6f8fb;
+        }
+
+        .navbar-brand {
+            letter-spacing: 0.5px;
+        }
+
+        .navbar .nav-link {
+            transition: opacity 0.2s ease;
+        }
+
+        .navbar .nav-link:hover {
+            opacity: 0.85;
+        }
+
+        /* 主题卡片悬浮效果 */
+        .topic-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .12) !important;
+        }
+
+        /* 笔记内容排版 */
+        .entry-text {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* 页脚吸底 */
+        .footer {
+            margin-top: auto;
+        }
+    </style>
+    {% block extra_css %}{% endblock extra_css %}
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-    <nav class="navbar navbar-expand-md navbar-light bg-light mb-4 border">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'learning_logs:index' %}">
-                Learning Log
+    <!-- 顶部导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'learning_logs:index' %}">
+                📘 学习笔记
             </a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarCollapse" aria-controls="navbarCollapse"
-                aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="切换导航">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'learning_logs:topics' %}">
-                            Topics
-                        </a>
+                        <a class="nav-link" href="{% url 'learning_logs:index' %}">主页</a>
                     </li>
-                </ul> <!-- 定义导航栏左侧链接的代码到此结束 -->
-
-                <!-- 与账户相关的链接 -->
-                <ul class="navbar-nav ms-auto mb-2 mb-md-0">
-
                     {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <span class="navbar-text me-2">
-                                Hello, {{ user.username }}</span>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:register' %}">
-                                Register
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:login' %}">
-                                Log in
-                            </a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_logs:user_root' user.username %}">我的主题</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_logs:add_topic' user.username %}">新建主题</a>
+                    </li>
                     {% endif %}
+                </ul>
 
-                </ul> <!--与账户相关的链接到此结束-->
-
-                {% if user.is_authenticated %}
-                    <form action="{% url 'accounts:logout' %}" method="post">
-                        {% csrf_token %}
-                        <button name="submit" class="btn btn-outline-secondary btn-sm">
-                            Log out
-                        </button>
-                    </form>
-                {% endif %}
-
-            </div> <!-- 定义导航栏可折叠部分的代码到此结束 -->
-
-        </div> <!-- 定义导航栏容器的代码到此结束 -->
-    </nav> <!-- 定义导航栏的代码到此结束 -->
-
-    <main class="container">
-        <div class="pb-2 mb-2 border-bottom">
-            {% block page_header %}{% endblock page_header %}
+                <ul class="navbar-nav align-items-lg-center">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="navbar-text text-white-50 me-2">
+                            👤 {{ user.username }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'accounts:logout' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-light">
+                                退出登录
+                            </button>
+                        </form>
+                    </li>
+                    {% else %}
+                    <li class="nav-item me-2">
+                        <a class="btn btn-sm btn-outline-light" href="{% url 'accounts:login' %}">登录</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-sm btn-light" href="{% url 'accounts:register' %}">注册</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-        <div>
+    </nav>
+
+    <!-- 消息提示 -->
+    {% bootstrap_messages %}
+
+    <!-- 主内容区 -->
+    <main class="flex-grow-1">
+        <div class="container py-4">
+            {% block page_header %}{% endblock page_header %}
             {% block content %}{% endblock content %}
         </div>
     </main>
 
+    <!-- 页脚 -->
+    <footer class="footer bg-white border-top py-3">
+        <div class="container text-center text-muted small">
+            © {% now "Y" %} 学习笔记 · 记录你的每一次成长
+        </div>
+    </footer>
+
+    {% bootstrap_javascript %}
+    {% block extra_js %}{% endblock extra_js %}
 </body>
 </html>

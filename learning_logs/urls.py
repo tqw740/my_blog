@@ -1,27 +1,32 @@
-"""定义 learning_logs 的 URL 模式"""
-
 from django.urls import path
-
-from . import views
+from .views import topic_views, entry_views, index
 
 app_name = 'learning_logs'
+
 urlpatterns = [
-    # 主页
-    path('', views.index, name='index'),
-    # 显示所有主题的页面
-    path('topics/', views.topics, name='topics'),
-    # 特定主题的详细页面
-    path('topics/<int:topic_id>/', views.topic, name='topic'),
-    # 用于添加新主题的网页
-    path('new_topic/', views.new_topic, name='new_topic'),
-    # 用于编辑主题的页面
-    path('edit_topic/<int:topic_id>/', views.edit_topic, name='edit_topic'),
-    # 用于删除主题的网页
-    path('delete_topic/<int:topic_id>/', views.delete_topic, name='delete_topic'),
-    # 用于添加新条目的页面
-    path('new_entry/<int:topic_id>/', views.new_entry, name='new_entry'),
-    # 用于编辑条目的页面
-    path('edit_entry/<int:entry_id>/', views.edit_entry, name='edit_entry'),
-    # 用于删除条目的页面
-    path('delete_entry/<int:entry_id>/', views.delete_entry, name='delete_entry'),
+    path('', index.index, name='index'),
+    # URL 别名实时预览接口（必须放在 <str:username> 路由之前）
+    path('slug-preview/', topic_views.slug_preview, name='slug_preview'),
+    # 2. Entry 相关路由（放在最前面，避免被 <str:username> 路由误匹配）
+    path('entry/<int:entry_id>/edit/', entry_views.edit_entry, name='edit_entry'),
+    path('entry/<int:entry_id>/delete/', entry_views.delete_entry, name='delete_entry'),
+
+    # 1. Topic 相关路由
+    # 用户根目录列表：/username/
+    path('<str:username>/', topic_views.user_root_topics, name='user_root'),
+    
+    # 创建顶级 Topic：/username/add_topic/
+    path('<str:username>/add_topic/', topic_views.add_topic, name='add_topic'),
+    
+    # 给特定 Topic 添加子 Topic：/username/python/django/add_subtopic/
+    path('<str:username>/<path:topic_path>/add_subtopic/', topic_views.add_topic, name='add_subtopic'),
+    
+    # 修改/删除 Topic
+    path('<str:username>/<path:topic_path>/edit/', topic_views.edit_topic, name='edit_topic'),
+    path('<str:username>/<path:topic_path>/delete/', topic_views.delete_topic, name='delete_topic'),
+    path('<str:username>/<path:topic_path>/add_entry/', entry_views.add_entry, name='add_entry'),
+
+    # 动态匹配多级 Topic 路径：/username/python/django/
+    # 注意：必须放在所有具体动作路由之后，否则会吞掉上面的路由
+    path('<str:username>/<path:topic_path>/', topic_views.topic_detail, name='topic_detail'),
 ]

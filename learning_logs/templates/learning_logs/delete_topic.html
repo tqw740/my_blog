@@ -1,0 +1,33 @@
+{% extends "learning_logs/base.html" %}
+
+{% block title %}删除主题 · 学习笔记{% endblock title %}
+
+{% block page_header %}
+<h1 class="h2 mb-4">删除主题</h1>
+{% endblock page_header %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="fs-1 mb-3">⚠️</div>
+                <h4 class="text-danger mb-3">确定要删除「{{ topic.text }}」吗？</h4>
+                <p class="text-muted">
+                    该操作将<b>永久删除</b>此主题及其全部子主题和笔记，且无法恢复。
+                </p>
+                <div class="mt-4 d-flex justify-content-center gap-2">
+                    <form method="post"
+                          action="{% url 'learning_logs:delete_topic' topic.owner.username topic.get_full_path %}"
+                          class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger px-4">确认删除</button>
+                    </form>
+                    <a href="{% url 'learning_logs:topic_detail' topic.owner.username topic.get_full_path %}"
+                       class="btn btn-outline-secondary px-4">取消</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

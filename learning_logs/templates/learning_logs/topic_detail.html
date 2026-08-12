@@ -1,0 +1,99 @@
+{% extends "learning_logs/base.html" %}
+
+{% block title %}{{ topic.text }} · 学习笔记{% endblock title %}
+
+{% block page_header %}
+<!-- 面包屑导航 -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+        <li class="breadcrumb-item">
+            <a href="{% url 'learning_logs:user_root' target_user.username %}">{{ target_user.username }}</a>
+        </li>
+        {% for ancestor in ancestors %}
+            {% if forloop.last %}
+            <li class="breadcrumb-item active" aria-current="page">{{ ancestor.text }}</li>
+            {% else %}
+            <li class="breadcrumb-item">
+                <a href="{% url 'learning_logs:topic_detail' target_user.username ancestor.get_full_path %}">
+                    {{ ancestor.text }}
+                </a>
+            </li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">{{ topic.text }}</h1>
+        <p class="text-muted small mb-0">创建于 {{ topic.date_added|date:"Y-m-d H:i" }}</p>
+    </div>
+    {% if user == target_user %}
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'learning_logs:add_subtopic' target_user.username topic.get_full_path %}"
+           class="btn btn-outline-primary btn-sm">＋ 子主题</a>
+        <a href="{% url 'learning_logs:add_entry' target_user.username topic.get_full_path %}"
+           class="btn btn-primary btn-sm">＋ 笔记</a>
+        <a href="{% url 'learning_logs:edit_topic' target_user.username topic.get_full_path %}"
+           class="btn btn-outline-secondary btn-sm">编辑</a>
+        <a href="{% url 'learning_logs:delete_topic' target_user.username topic.get_full_path %}"
+           class="btn btn-outline-danger btn-sm">删除</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock page_header %}
+
+{% block content %}
+<!-- 子主题区域 -->
+<section class="mb-5">
+    <h2 class="h5 text-uppercase text-muted mb-3">子主题</h2>
+    {% if subtopics %}
+    <div class="row g-3">
+        {% for subtopic in subtopics %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'learning_logs:topic_detail' target_user.username subtopic.get_full_path %}"
+               class="text-decoration-none">
+                <div class="card h-100 shadow-sm topic-card">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold text-primary">{{ subtopic.text }}</span>
+                        <span class="text-muted small">{{ subtopic.entries.count }} 条笔记</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">暂无子主题。</p>
+    {% endif %}
+</section>
+
+<!-- 笔记区域 -->
+<section>
+    <h2 class="h5 text-uppercase text-muted mb-3">笔记</h2>
+    {% if entries %}
+    <div class="list-group shadow-sm">
+        {% for entry in entries %}
+        <div class="list-group-item py-3">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+                <div class="flex-grow-1">
+                    <p class="mb-1 entry-text">{{ entry.text|linebreaksbr }}</p>
+                    <small class="text-muted">📅 {{ entry.date_added|date:"Y-m-d H:i" }}</small>
+                </div>
+                {% if user == target_user %}
+                <div class="d-flex gap-1 flex-shrink-0">
+                    <a href="{% url 'learning_logs:edit_entry' entry.id %}"
+                       class="btn btn-sm btn-outline-secondary">编辑</a>
+                    <a href="{% url 'learning_logs:delete_entry' entry.id %}"
+                       class="btn btn-sm btn-outline-danger">删除</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">该主题下还没有笔记。</p>
+    {% endif %}
+</section>
+{% endblock content %}

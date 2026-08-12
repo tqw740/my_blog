@@ -1,12 +1,26 @@
 {% extends "learning_logs/base.html" %}
 
-{% block title %}编辑主题 · 学习笔记{% endblock title %}
+{% block title %}新建主题 · 学习笔记{% endblock title %}
 
 {% block page_header %}
-<h1 class="h2 mb-4">编辑主题：{{ topic.text }}</h1>
+<h1 class="h2 mb-4">
+    {% if parent_topic %}
+        在「{{ parent_topic.text }}」下新建子主题
+    {% else %}
+        新建主题
+    {% endif %}
+</h1>
 {% endblock page_header %}
 
 {% block content %}
+{% if parent_topic %}
+    {% url 'learning_logs:add_subtopic' user.username parent_topic.get_full_path as form_action %}
+    {% url 'learning_logs:topic_detail' user.username parent_topic.get_full_path as back_url %}
+{% else %}
+    {% url 'learning_logs:add_topic' user.username as form_action %}
+    {% url 'learning_logs:user_root' user.username as back_url %}
+{% endif %}
+
 <div class="row justify-content-center">
     <div class="col-lg-7">
         <div class="card shadow-sm border-0">
@@ -18,19 +32,18 @@
                 </div>
                 {% endif %}
 
-                <form method="post"
-                      action="{% url 'learning_logs:edit_topic' topic.owner.username topic.get_full_path %}">
+                <form method="post" action="{{ form_action }}">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="id_text" class="form-label">主题名称</label>
                         <input type="text" class="form-control" id="id_text"
                                name="text" maxlength="200"
                                placeholder="例如：Python 学习"
-                               value="{% if submitted_text %}{{ submitted_text }}{% else %}{{ topic.text }}{% endif %}"
-                               required oninput="updateSlugPreview()">
+                               value="{{ submitted_text }}" required
+                               oninput="updateSlugPreview()">
                         <div class="form-text">
                             只能包含汉字、大小写字母、连词符、空格和数字；
-                            URL 别名会随主题名称自动重新生成。
+                            URL 别名由系统根据主题名称自动生成。
                         </div>
                     </div>
 
@@ -42,9 +55,8 @@
                     </div>
 
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary px-4">保存修改</button>
-                        <a href="{% url 'learning_logs:topic_detail' topic.owner.username topic.get_full_path %}"
-                           class="btn btn-outline-secondary px-4">取消</a>
+                        <button type="submit" class="btn btn-primary px-4">保存</button>
+                        <a href="{{ back_url }}" class="btn btn-outline-secondary px-4">取消</a>
                     </div>
                 </form>
             </div>
@@ -56,7 +68,7 @@
 {% block extra_js %}
 <script>
     const slugPreviewUrl = "{% url 'learning_logs:slug_preview' %}";
-    const slugPrefix = "{% if topic.parent %}{{ topic.owner.username }}/{{ topic.parent.get_full_path }}{% else %}{{ topic.owner.username }}{% endif %}";
+    const slugPrefix = "{% if parent_topic %}{{ user.username }}/{{ parent_topic.get_full_path }}{% else %}{{ user.username }}{% endif %}";
     let slugTimer = null;
 
     async function updateSlugPreview() {

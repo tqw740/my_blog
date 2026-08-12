@@ -1,76 +1,70 @@
-{% extends 'learning_logs/base.html' %}
+{% extends "learning_logs/base.html" %}
 
-{% block page_header %}
-    <!-- 1. Hero 顶部巨幕区域 -->
-    <div class="p-5 mb-4 bg-light border rounded-3 shadow-sm">
-        <div class="container-fluid py-2">
-            <h1 class="display-4 fw-bold text-dark mb-3">Track your learning journey.</h1>
-            <p class="col-md-10 fs-5 text-secondary mb-4">
-                Make your own Learning Log to keep a clean, structured list of topics you're mastering. 
-                Whenever you learn something new, log an entry to consolidate your progress.
-            </p>
+{% block title %}主页 · 学习笔记{% endblock title %}
 
-            <!-- 根据用户登录状态，动态切换 Call-To-Action (CTA) 按钮 -->
+{% block content %}
+<!-- Hero 区域 -->
+<div class="px-4 pt-5 my-4 text-center border-bottom">
+    <h1 class="display-5 fw-bold text-primary">记录你的学习之旅 🚀</h1>
+    <div class="col-lg-8 mx-auto">
+        <p class="lead mb-4 text-muted">
+            学习笔记能帮你记录学习过程中的每一个主题、每一段心得，
+            并组织成清晰的目录结构，随时回顾你的成长轨迹。
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
             {% if user.is_authenticated %}
-                <div class="d-flex gap-2 flex-wrap">
-                    <a class="btn btn-primary btn-lg" href="{% url 'learning_logs:topics' %}">
-                        View My Topics &raquo;
-                    </a>
-                    <a class="btn btn-outline-primary btn-lg" href="{% url 'learning_logs:new_topic' %}">
-                        + Add New Topic
-                    </a>
-                </div>
+                <a href="{% url 'learning_logs:user_root' user.username %}" class="btn btn-primary btn-lg px-4">
+                    进入我的主题
+                </a>
+                <a href="{% url 'learning_logs:add_topic' user.username %}" class="btn btn-outline-primary btn-lg px-4">
+                    ＋ 新建主题
+                </a>
             {% else %}
-                <div class="d-flex gap-2 flex-wrap">
-                    <a class="btn btn-primary btn-lg" href="{% url 'accounts:register' %}">
-                        Get Started &raquo;
-                    </a>
-                    <a class="btn btn-outline-secondary btn-lg" href="{% url 'accounts:login' %}">
-                        Log in
-                    </a>
-                </div>
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4">
+                    立即注册
+                </a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg px-4">
+                    登录
+                </a>
             {% endif %}
         </div>
     </div>
-{% endblock page_header %}
+</div>
 
-{% block content %}
-    <!-- 2. 下半部分：3 列产品特性展示区 -->
-    <div class="row g-4 py-2 mb-4">
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm p-3 text-center">
-                <div class="card-body">
-                    <div class="fs-1 text-primary mb-3">📌</div>
-                    <h5 class="card-title fw-bold">Organize Topics</h5>
-                    <p class="card-text text-muted">
-                        Group your notes into custom categories or skills you're currently learning.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm p-3 text-center">
-                <div class="card-body">
-                    <div class="fs-1 text-primary mb-3">✍️</div>
-                    <h5 class="card-title fw-bold">Log Daily Entries</h5>
-                    <p class="card-text text-muted">
-                        Record daily breakthroughs, code snippets, and key takeaways effortlessly.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm p-3 text-center">
-                <div class="card-body">
-                    <div class="fs-1 text-primary mb-3">📈</div>
-                    <h5 class="card-title fw-bold">Track Growth</h5>
-                    <p class="card-text text-muted">
-                        Review your historical entries anytime to see how far you've come over time.
-                    </p>
-                </div>
+<!-- 功能特性卡片 -->
+<div class="row g-4 py-4">
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="fs-1 mb-2">🗂️</div>
+                <h5 class="card-title">多级主题</h5>
+                <p class="card-text text-muted mb-0">
+                    支持无限层级分类，让知识结构井井有条，目录随心扩展。
+                </p>
             </div>
         </div>
     </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="fs-1 mb-2">📝</div>
+                <h5 class="card-title">自由笔记</h5>
+                <p class="card-text text-muted mb-0">
+                    在每个主题下随手记录心得、代码与总结，随时编辑更新。
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="fs-1 mb-2">🔗</div>
+                <h5 class="card-title">公开分享</h5>
+                <p class="card-text text-muted mb-0">
+                    通过唯一链接即可把学习笔记分享给朋友，共同进步。
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}

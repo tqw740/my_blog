@@ -68,6 +68,7 @@ INSTALLED_APPS = [
 
     # 第三方应用程序
     'django_bootstrap5',
+    'mptt',
 
     # Django 默认添加的应用程序
     'django.contrib.admin',
