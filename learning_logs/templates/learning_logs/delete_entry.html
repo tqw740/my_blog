@@ -14,6 +14,8 @@
                 <div class="fs-1 mb-3">⚠️</div>
                 <h4 class="text-danger mb-3">确定要删除这条笔记吗？</h4>
 
+                <p class="fw-semibold mb-2">{{ entry.title }}</p>
+
                 <div class="alert alert-secondary text-start entry-text">
                     {{ entry.text|truncatechars:200 }}
                 </div>

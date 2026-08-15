@@ -1,0 +1,51 @@
+{% extends "learning_logs/base.html" %}
+
+{% block title %}{{ entry.title }} · 学习笔记{% endblock title %}
+
+{% block page_header %}
+<nav aria-label="breadcrumb">
+	<ol class="breadcrumb mb-2">
+		<li class="breadcrumb-item">
+			<a href="{% url 'learning_logs:user_root' topic.owner.username %}">{{ topic.owner.username }}</a>
+		</li>
+		<li class="breadcrumb-item">
+			<a href="{% url 'learning_logs:topic_detail' topic.owner.username topic.get_full_path %}">{{ topic.text }}</a>
+		</li>
+		<li class="breadcrumb-item active" aria-current="page">笔记详情</li>
+	</ol>
+</nav>
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+	<div>
+		<h1 class="h3 mb-1">{{ entry.title }}</h1>
+		<p class="text-muted small mb-0">创建于 {{ entry.date_added|date:"Y-m-d H:i" }}</p>
+	</div>
+	{% if user == topic.owner %}
+	<div class="d-flex gap-2">
+		<a href="{% url 'learning_logs:edit_entry' entry.id %}" class="btn btn-outline-secondary btn-sm">编辑</a>
+		<a href="{% url 'learning_logs:delete_entry' entry.id %}" class="btn btn-outline-danger btn-sm">删除</a>
+	</div>
+	{% endif %}
+</div>
+{% endblock page_header %}
+
+{% block content %}
+<div class="row justify-content-center">
+	<div class="col-lg-9">
+		<article class="card shadow-sm border-0">
+			<div class="card-body p-4 p-lg-5">
+				<div class="entry-text lh-lg">{{ entry.text|linebreaksbr }}</div>
+			</div>
+		</article>
+
+		<div class="mt-3 d-flex gap-2">
+			<a href="{% url 'learning_logs:topic_detail' topic.owner.username topic.get_full_path %}"
+			   class="btn btn-outline-primary">返回主题</a>
+			{% if user == topic.owner %}
+			<a href="{% url 'learning_logs:add_entry' topic.owner.username topic.get_full_path %}"
+			   class="btn btn-primary">新增笔记</a>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock content %}

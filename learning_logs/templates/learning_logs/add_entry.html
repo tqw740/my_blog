@@ -15,6 +15,11 @@
                       action="{% url 'learning_logs:add_entry' topic.owner.username topic.get_full_path %}">
                     {% csrf_token %}
                     <div class="mb-3">
+                        <label for="id_title" class="form-label">笔记标题</label>
+                        <input type="text" class="form-control" id="id_title" name="title"
+                               maxlength="200" required placeholder="例如：Django ORM 查询总结">
+                    </div>
+                    <div class="mb-3">
                         <label for="id_text" class="form-label">笔记内容</label>
                         <textarea class="form-control" id="id_text" name="text"
                                   rows="10" required

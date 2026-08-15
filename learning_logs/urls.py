@@ -10,6 +10,7 @@ urlpatterns = [
     # 2. Entry 相关路由（放在最前面，避免被 <str:username> 路由误匹配）
     path('entry/<int:entry_id>/edit/', entry_views.edit_entry, name='edit_entry'),
     path('entry/<int:entry_id>/delete/', entry_views.delete_entry, name='delete_entry'),
+    path('entry/<int:entry_id>/', entry_views.entry_detail, name='entry_detail'),
 
     # 1. Topic 相关路由
     # 用户根目录列表：/username/
