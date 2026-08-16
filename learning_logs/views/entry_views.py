@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from ..models import Entry
@@ -29,6 +30,7 @@ def add_entry(request, username, topic_path):
         if title and text:
             Entry.objects.create(title=title, text=text, topic=topic)
             return redirect('learning_logs:topic_detail', username=username, topic_path=topic_path)
+        messages.error(request, '标题和内容都不能为空。')
 
     context = {
         'topic': topic,
@@ -49,15 +51,14 @@ def edit_entry(request, entry_id):
         title = (request.POST.get('title') or '').strip()
         text = (request.POST.get('text') or '').strip()
 
-        if title:
+        if title and text:
             entry.title = title
-        if text:
             entry.text = text
-
-        entry.save()
-        username = request.user.username
-        topic_path = topic.get_full_path()
-        return redirect('learning_logs:topic_detail', username=username, topic_path = topic_path)
+            entry.save()
+            username = request.user.username
+            topic_path = topic.get_full_path()
+            return redirect('learning_logs:topic_detail', username=username, topic_path = topic_path)
+        messages.error(request, '标题和内容都不能为空。')
 
     context = {
         'entry': entry,

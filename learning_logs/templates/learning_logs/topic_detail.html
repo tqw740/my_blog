@@ -1,6 +1,31 @@
 {% extends "learning_logs/base.html" %}
+{% load static %}
+{% load markdown_extras %}
 
 {% block title %}{{ topic.text }} · 学习笔记{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'vditor/dist/index.css' %}">
+<style>
+    /* 列表里的笔记预览：渲染 Markdown 但限制高度并渐隐 */
+    .entry-preview {
+        max-height: 9em;
+        overflow: hidden;
+        position: relative;
+        font-size: .95rem;
+    }
+    .entry-preview::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3em;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff);
+        pointer-events: none;
+    }
+</style>
+{% endblock extra_css %}
 
 {% block page_header %}
 <!-- 面包屑导航 -->
@@ -82,7 +107,9 @@
                             {{ entry.title }}
                         </a>
                     </h3>
-                    <p class="mb-1 entry-text">{{ entry.text|linebreaksbr }}</p>
+                    <p class="mb-1">
+                        <span class="entry-preview vditor-reset d-block">{{ entry.text|markdown|truncatechars_html:240 }}</span>
+                    </p>
                     <small class="text-muted">📅 {{ entry.date_added|date:"Y-m-d H:i" }}</small>
                 </div>
                 {% if user == target_user %}

@@ -14,11 +14,15 @@ db.sqlite3
 *.log
 media/
 staticfiles/
-static/
+# 仅忽略仓库根目录的 static/（保留各 app 内的 static/，例如 learning_logs/static/）
+/static/
 
 # Environment variables
 .env
 .env.*
+
+# pip 安装失败时遗留的临时目录（可手动删除）
+.tmp-pip/
 
 # IDE/editor
 .idea/

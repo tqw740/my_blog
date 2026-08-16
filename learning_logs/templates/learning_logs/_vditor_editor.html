@@ -1,0 +1,53 @@
+{% load static %}
+{# Vditor 所见即所得 Markdown 编辑器 #}
+{# 用法：{% include "learning_logs/_vditor_editor.html" with vditor_initial=entry.text %} #}
+<link rel="stylesheet" href="{% static 'vditor/dist/index.css' %}">
+
+<div id="vditor"></div>
+{# 隐藏的 textarea 承载初始内容与提交值（name="text"，由 JS 与编辑器双向同步） #}
+<textarea id="id_text" name="text" class="d-none" rows="10">{{ vditor_initial|default_if_none:"" }}</textarea>
+
+<script src="{% static 'vditor/dist/index.min.js' %}"></script>
+<script>
+(function () {
+    "use strict";
+    var textarea = document.getElementById('id_text');
+    var form = document.getElementById('entry-form');
+
+    var editor = new Vditor('vditor', {
+        height: 460,
+        mode: 'wysiwyg',                     // 所见即所得
+        value: textarea.value,
+        placeholder: '支持 Markdown 语法：标题、加粗、列表、表格、代码块……所见即所得',
+        lang: 'zh_CN',
+        icon: 'ant',
+        // 本地静态资源路径，Vditor 会从这里按需加载 lute 引擎、语言包、图表渲染器等
+        cdn: '/static/vditor',
+        cache: { enable: false },
+        toolbarConfig: { pin: true },
+        preview: { delay: 200 },
+        counter: { enable: true, type: 'text' },
+        toolbar: [
+            'emoji', 'headings', 'bold', 'italic', 'strike', '|',
+            'list', 'ordered-list', 'check', 'outdent', 'indent', '|',
+            'quote', 'line', 'code', 'inline-code', '|',
+            'link', 'table', '|',
+            'undo', 'redo', '|',
+            'fullscreen', 'edit-mode'
+        ],
+        after: function () {
+            editor.focus();
+        }
+    });
+
+    // 提交前把编辑器里的 Markdown 同步回隐藏的 textarea
+    form.addEventListener('submit', function (e) {
+        var md = editor.getValue();
+        textarea.value = md;
+        if (!md.trim()) {
+            e.preventDefault();
+            alert('笔记内容不能为空');
+        }
+    });
+})();
+</script>

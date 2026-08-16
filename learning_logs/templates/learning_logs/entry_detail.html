@@ -1,6 +1,12 @@
 {% extends "learning_logs/base.html" %}
+{% load static %}
+{% load markdown_extras %}
 
 {% block title %}{{ entry.title }} · 学习笔记{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'vditor/dist/index.css' %}">
+{% endblock extra_css %}
 
 {% block page_header %}
 <nav aria-label="breadcrumb">
@@ -34,7 +40,8 @@
 	<div class="col-lg-9">
 		<article class="card shadow-sm border-0">
 			<div class="card-body p-4 p-lg-5">
-				<div class="entry-text lh-lg">{{ entry.text|linebreaksbr }}</div>
+				{# vditor-reset 提供与编辑器一致的 Markdown 排版样式 #}
+				<div class="vditor-reset">{{ entry.text|markdown }}</div>
 			</div>
 		</article>
 
