@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import topic_views, entry_views, index
+from .views.R2_views import get_upload_presigned_url
 
 app_name = 'learning_logs'
 
@@ -7,6 +8,10 @@ urlpatterns = [
     path('', index.index, name='index'),
     # URL 别名实时预览接口（必须放在 <str:username> 路由之前）
     path('slug-preview/', topic_views.slug_preview, name='slug_preview'),
+
+    # 3. 图床相关路由
+    path('api/upload-presigned-url/', get_upload_presigned_url, name='get_upload_presigned_url'),
+
     # 2. Entry 相关路由（放在最前面，避免被 <str:username> 路由误匹配）
     path('entry/<int:entry_id>/edit/', entry_views.edit_entry, name='edit_entry'),
     path('entry/<int:entry_id>/delete/', entry_views.delete_entry, name='delete_entry'),

@@ -14,6 +14,10 @@ import os
 import dj_database_url
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
+
+# 加载 .env 文件的环境变量
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,6 +57,14 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '.vercel.app',
     '.tqw740.top',
+]
+
+# 信任的 CSRF 来源（带 https://）
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'https://*.tqw740.top',
+    'https://www.tqw740.top',
+    'https://tqw740.top',
 ]
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
 if allowed_hosts_env:
@@ -193,3 +205,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'learning_logs:index'
 LOGOUT_REDIRECT_URL = 'learning_logs:index'
 LOGIN_URL = 'accounts:login'
+
+R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID')
+R2_ACCESS_KEY_ID = os.environ.get('R2_ACCESS_KEY_ID')
+R2_SECRET_ACCESS_KEY = os.environ.get('R2_SECRET_ACCESS_KEY')
+R2_BUCKET_NAME = os.environ.get('R2_BUCKET_NAME')
+R2_CUSTOM_DOMAIN = os.environ.get('R2_CUSTOM_DOMAIN') 

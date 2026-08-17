@@ -4,6 +4,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
+    <meta name="referrer" content="same-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}学习笔记{% endblock title %}</title>
     {% bootstrap_css %}
@@ -44,6 +45,20 @@
         /* 页脚吸底 */
         .footer {
             margin-top: auto;
+        }
+
+        /* 限制所有文章区域内的图片，美化排版 */
+        main img {
+            max-width: 100% !important;      /* 绝不超过卡片宽度 */
+            max-height: 450px !important;     /* 限制最大高度（可根据喜好调成 400px 或 500px） */
+            width: auto !important;          /* 保持真实比例 */
+            height: auto !important;         /* 保持真实比例 */
+            object-fit: contain;             /* 保证图片内容完整显示不被裁剪 */
+            display: block !important;       /* 独占一行 */
+            margin: 16px auto !important;    /* ⭐ 图片居中对齐，上下留出间距 */
+            border-radius: 8px;              /* 圆角边框 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 加一点立体阴影效果 */
+            cursor: pointer;                 /* 鼠标放上去显示小手 */
         }
     </style>
     {% block extra_css %}{% endblock extra_css %}

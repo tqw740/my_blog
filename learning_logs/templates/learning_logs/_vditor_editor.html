@@ -1,3 +1,4 @@
+<!-- START OF FILE _vditor_editor.html -->
 {% load static %}
 {# Vditor 所见即所得 Markdown 编辑器 #}
 {# 用法：{% include "learning_logs/_vditor_editor.html" with vditor_initial=entry.text %} #}
@@ -14,40 +15,91 @@
     var textarea = document.getElementById('id_text');
     var form = document.getElementById('entry-form');
 
+    // 1. 直传 Cloudflare R2 辅助函数
+    async function uploadImageToR2(file) {
+        var params = new URLSearchParams({
+            filename: file.name,
+            content_type: file.type || 'image/jpeg'
+        });
+
+        // 获取后端预签名 URL
+        var res = await fetch("{% url 'learning_logs:get_upload_presigned_url' %}?" + params.toString());
+        if (!res.ok) {
+            throw new Error('获取上传凭证失败，请确认是否已登录');
+        }
+        var data = await res.json();
+
+        // 浏览器直传 R2
+        var uploadRes = await fetch(data.upload_url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': file.type || 'image/jpeg',
+            },
+            body: file,
+        });
+
+        if (!uploadRes.ok) {
+            throw new Error('图片直传 R2 失败');
+        }
+
+        return data.public_url;
+    }
+
+    // 2. 初始化 Vditor
     var editor = new Vditor('vditor', {
         height: 460,
         mode: 'wysiwyg',                     // 所见即所得
         value: textarea.value,
-        placeholder: '支持 Markdown 语法：标题、加粗、列表、表格、代码块……所见即所得',
+        placeholder: '支持 Markdown 语法，支持截图后直接 Ctrl+V 粘贴、拖拽或点击工具栏图片图标上传...',
         lang: 'zh_CN',
         icon: 'ant',
-        // 本地静态资源路径，Vditor 会从这里按需加载 lute 引擎、语言包、图表渲染器等
         cdn: '/static/vditor',
         cache: { enable: false },
         toolbarConfig: { pin: true },
         preview: { delay: 200 },
         counter: { enable: true, type: 'text' },
+        // ⭐ 这里的 toolbar 加入了 'upload'
         toolbar: [
             'emoji', 'headings', 'bold', 'italic', 'strike', '|',
             'list', 'ordered-list', 'check', 'outdent', 'indent', '|',
             'quote', 'line', 'code', 'inline-code', '|',
-            'link', 'table', '|',
+            'link', 'upload', 'table', '|',
             'undo', 'redo', '|',
             'fullscreen', 'edit-mode'
         ],
+        // ⭐ 新增：R2 上传拦截处理
+        upload: {
+            accept: 'image/*',
+            multiple: false,
+            async handler(files) {
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    try {
+                        // 上传至 R2 获取公网 URL
+                        var publicUrl = await uploadImageToR2(file);
+                        // 在当前光标处插入图片（所见即所得模式会自动渲染出图片预览）
+                        editor.insertValue('![' + file.name + '](' + publicUrl + ')\n');
+                    } catch (err) {
+                        alert('上传失败: ' + err.message);
+                    }
+                }
+            }
+        },
         after: function () {
             editor.focus();
         }
     });
 
     // 提交前把编辑器里的 Markdown 同步回隐藏的 textarea
-    form.addEventListener('submit', function (e) {
-        var md = editor.getValue();
-        textarea.value = md;
-        if (!md.trim()) {
-            e.preventDefault();
-            alert('笔记内容不能为空');
-        }
-    });
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            var md = editor.getValue();
+            textarea.value = md;
+            if (!md.trim()) {
+                e.preventDefault();
+                alert('笔记内容不能为空');
+            }
+        });
+    }
 })();
 </script>
