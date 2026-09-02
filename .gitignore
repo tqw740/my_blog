@@ -14,8 +14,6 @@ db.sqlite3
 *.log
 media/
 staticfiles/
-# 仅忽略仓库根目录的 static/（保留各 app 内的 static/，例如 learning_logs/static/）
-/static/
 
 # Environment variables
 .env

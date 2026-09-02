@@ -65,6 +65,8 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
+    <!-- 顶部通告栏容器（默认先隐藏，避免已关闭的用户看到闪烁） -->
+    {% include 'learning_logs/_announcement.html' %}
     <!-- 顶部导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
@@ -89,6 +91,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'learning_logs:add_topic' user.username %}">新建主题</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_logs:entries' %}">所有帖子</a>
                     </li>
                     {% endif %}
                 </ul>

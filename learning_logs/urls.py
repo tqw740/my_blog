@@ -6,6 +6,7 @@ app_name = 'learning_logs'
 
 urlpatterns = [
     path('', index.index, name='index'),
+    path('entries/', index.entries, name='entries'),
     # URL 别名实时预览接口（必须放在 <str:username> 路由之前）
     path('slug-preview/', topic_views.slug_preview, name='slug_preview'),
 

@@ -1,0 +1,47 @@
+<!-- ==================== 顶部通告栏 开始 ==================== -->
+<div id="top-announcement-bar" class="announcement-bar" style="display: none;">
+  <div class="announcement-container">
+    <div class="announcement-content">
+      <span class="announcement-icon">📢</span>
+      <span class="announcement-text">
+        新增公告系统，可以在后台发布公告，前端会在顶部显示。点击关闭按钮可关闭公告，关闭后不会再显示。
+      </span>
+    </div>
+    <!-- 移除了 onclick，改用 id 绑定，绝对不会报错 -->
+    <button id="announcement-close-btn" class="announcement-close" aria-label="关闭通告">
+      &times;
+    </button>
+  </div>
+</div>
+
+<script>
+  (function initAnnouncement() {
+    const CURRENT_BANNER_ID = '2026-08-18';
+    const bar = document.getElementById('top-announcement-bar');
+    const closeBtn = document.getElementById('announcement-close-btn');
+
+    if (!bar) return;
+
+    // 1. 检查是否需要展示（加入 try-catch 防止无痕模式禁用 localStorage 报错）
+    try {
+      const isClosed = localStorage.getItem('closed_announcement_id');
+      if (isClosed !== CURRENT_BANNER_ID) {
+        bar.style.display = 'block';
+      }
+    } catch (e) {
+      // 如果无痕模式完全禁用了 localStorage，默认正常显示
+      bar.style.display = 'block';
+    }
+
+    // 2. 绑定关闭按钮点击事件
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        bar.style.display = 'none';
+        try {
+          localStorage.setItem('closed_announcement_id', CURRENT_BANNER_ID);
+        } catch (e) {}
+      });
+    }
+  })();
+</script>
+<!-- ==================== 顶部通告栏 结束 ==================== -->

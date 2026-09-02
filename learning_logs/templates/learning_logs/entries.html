@@ -1,0 +1,72 @@
+{% extends "learning_logs/base.html" %}
+
+{% block title %}全站最新帖子 - 学习笔记{% endblock title %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h1 class="h3 fw-bold text-primary mb-1">⚡ 全站最新帖子</h1>
+        <p class="text-muted small mb-0">实时汇集全站用户的最新笔记与学习动态</p>
+    </div>
+    <span class="badge bg-primary rounded-pill px-3 py-2">
+        最新 {{ latest_entries|length }} 条
+    </span>
+</div>
+{% endblock page_header %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="list-group list-group-flush rounded-3">
+                
+                {% for entry in latest_entries %}
+                    <div class="list-group-item list-group-item-action p-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                            <!-- 帖子标题（点击跳转到详情，若无单独 entry 详情页可跳到 topic） -->
+                            <h5 class="mb-0">
+                                <a href="{% url 'learning_logs:entry_detail' entry.id %}" class="text-decoration-none text-dark fw-bold hover-primary">
+                                    {{ entry.title }}
+                                </a>
+                            </h5>
+                            <!-- 发布时间 -->
+                            <small class="text-muted text-nowrap ms-3">
+                                🕒 {{ entry.date_added|date:"Y-m-d H:i" }}
+                            </small>
+                        </div>
+
+                        <!-- 附属元信息：作者、所属主题、字数 -->
+                        <div class="d-flex flex-wrap align-items-center gap-2 small">
+                            <!-- 作者 -->
+                            <span class="badge bg-light text-secondary border">
+                                👤 <a href="{% url 'learning_logs:user_root' entry.topic.owner.username %}" class="text-decoration-none text-secondary">
+                                    {{ entry.topic.owner.username }}
+                                </a>
+                            </span>
+
+                            <!-- 所属主题 -->
+                            <span class="badge bg-light text-primary border">
+                                📁 所属主题: {{ entry.topic.text }}
+                            </span>
+
+                            <!-- 字数统计（如果你模型里有 word_count 字段） -->
+                            {% if entry.word_count %}
+                            <span class="badge bg-light text-muted border">
+                                📝 {{ entry.word_count }} 字
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <!-- 空状态提示 -->
+                    <div class="text-center py-5">
+                        <div class="text-muted mb-2" style="font-size: 2rem;">📭</div>
+                        <p class="text-muted mb-0">全站目前还没有任何帖子发布 ~</p>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
