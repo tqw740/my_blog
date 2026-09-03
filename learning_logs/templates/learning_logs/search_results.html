@@ -1,0 +1,138 @@
+<!-- learning_logs/templates/learning_logs/search_results.html -->
+{% extends "learning_logs/base.html" %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 860px;">
+
+    <!-- 1. 顶部搜索框表单 -->
+    <div class="mb-4">
+        <form method="get" action="{% url 'learning_logs:search' %}">
+            <div class="input-group input-group-lg shadow-sm">
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="form-control" 
+                    placeholder="输入关键词，搜索标题、分类、正文或作者..." 
+                    value="{{ query }}"
+                    autofocus
+                    required
+                >
+                <button class="btn btn-primary px-4" type="submit">
+                    搜索
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 2. 搜索状态提示 -->
+    <div class="d-flex justify-content-between align-items-center mb-3 text-muted">
+        {% if query %}
+            <div>
+                找到与 <span class="badge bg-light text-dark border">"{{ query }}"</span> 相关的结果 <strong>{{ total_count }}</strong> 条
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 3. 搜索结果列表 -->
+    <div class="search-results-list">
+        {% for entry in page_obj %}
+            <div class="card mb-3 shadow-sm border-0 border-start border-4 border-primary">
+                <div class="card-body">
+                    <!-- 文章标题 -->
+                    <h5 class="card-title mb-2">
+                        <!-- 这里的跳转链接根据你的 entry 详情路由调整，例如 entry_detail 或 topic -->
+                        <a href="{% url 'learning_logs:entry_detail' entry.id %}" class="text-decoration-none text-dark fw-bold highlightable">
+                            {{ entry.title|default:"无标题笔记" }}
+                        </a>
+                    </h5>
+
+                    <!-- 元信息：分类路径 / 作者 / 日期 / 字数 -->
+                    <div class="text-muted small mb-2 d-flex flex-wrap gap-2">
+                        <!-- 调用你的 Topic.get_full_path 显示分类树 -->
+                        <span>📁 路径: <span class="highlightable">{{ entry.topic.get_full_path }}</span></span>
+                        <span>•</span>
+                        <span>✍️ 作者: <span class="highlightable">{{ entry.topic.owner.username }}</span></span>
+                        <span>•</span>
+                        <span>🕒 {{ entry.date_added|date:"Y-m-d" }}</span>
+                        {% if entry.word_count %}
+                            <span>•</span>
+                            <span>📝 {{ entry.word_count }} 字</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- 正文摘要：过滤 HTML/Markdown 并截取前 120 字 -->
+                    <p class="card-text text-secondary highlightable">
+                        {{ entry.text|striptags|truncatechars:120 }}
+                    </p>
+                </div>
+            </div>
+        {% empty %}
+            <!-- 没有搜索到结果时展示 -->
+            {% if query %}
+                <div class="text-center py-5 bg-light rounded-3">
+                    <p class="fs-5 text-muted mb-2">😕 未找到与 "{{ query }}" 相关的笔记</p>
+                    <small class="text-secondary">建议：检查是否有错别字，或者换一个更通用的词搜搜看。</small>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <p>请输入关键词开始搜索。</p>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- 4. 分页导航（带上 &q={{ query }} 参数） -->
+    {% if page_obj.has_other_pages %}
+        <nav aria-label="搜索结果分页" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">上一页</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">上一页</span></li>
+                {% endif %}
+
+                <!-- 当前页码 -->
+                <li class="page-item active">
+                    <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                </li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">下一页</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">下一页</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+
+</div>
+
+<!-- 5. 纯原生 JS：前端关键词自动黄色高亮（不需要装任何 npm/第三方包） -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const query = "{{ query|escapejs }}".trim();
+        if (!query) return;
+
+        // 匹配所有 class 包含 highlightable 的标签
+        const elements = document.querySelectorAll('.highlightable');
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+
+        elements.forEach(el => {
+            el.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const text = node.textContent;
+                    if (regex.test(text)) {
+                        const span = document.createElement('span');
+                        span.innerHTML = text.replace(regex, '<mark style="background-color: #ffe066; padding: 2px 4px; border-radius: 3px;">$1</mark>');
+                        node.parentNode.replaceChild(span, node);
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock content %}

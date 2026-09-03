@@ -93,7 +93,10 @@
                         <a class="nav-link" href="{% url 'learning_logs:add_topic' user.username %}">新建主题</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'learning_logs:entries' %}">所有帖子</a>
+                        <a class="nav-link" href="{% url 'learning_logs:entries' %}">最新帖子</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_logs:search' %}">搜索</a>
                     </li>
                     {% endif %}
                 </ul>

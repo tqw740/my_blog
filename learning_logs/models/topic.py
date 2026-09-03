@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from mptt.models import MPTTModel, TreeForeignKey
+from django.contrib.postgres.indexes import GinIndex  # 1. 引入 GIN 索引
 
 class Topic(MPTTModel):
     """支持无限极分类的 Topic 模型"""
@@ -20,25 +21,34 @@ class Topic(MPTTModel):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="创建者")
     date_added = models.DateTimeField(auto_now_add=True)
 
-    # 标题按照文本进行排序
     class MPTTMeta:
         order_insertion_by = ['text']
 
     class Meta:
+        verbose_name = "主题"
+        verbose_name_plural = "主题列表"
+        # 原有的唯一性约束保留
         constraints = [
-            # 1. 有父节点时：owner + parent + slug 唯一
             models.UniqueConstraint(
                 fields=['owner', 'parent', 'slug'],
                 condition=models.Q(parent__isnull=False),
                 name='unique_owner_parent_slug',
             ),
-            # 2. 没有父节点时：owner + slug 唯一
             models.UniqueConstraint(
                 fields=['owner', 'slug'],
                 condition=models.Q(parent__isnull=True),
                 name='unique_owner_root_slug',
             )
         ]
+        # 2. 追加 Trigram GIN 索引加速主题名称的搜索
+        indexes = [
+            GinIndex(
+                fields=['text'], 
+                name='topic_text_trgm_idx', 
+                opclasses=['gin_trgm_ops']
+            ),
+        ]
+
     def get_full_path(self):
         """获取主题的完整路径"""
         ancestors = self.get_ancestors(include_self=True)
